@@ -18,7 +18,7 @@ without switching to formal English.
    kept only when the task's checks pass.
 3. Serve the output models on Fireworks on-demand deployments and compare them with a frontier model (**Kimi K3**) on
    phones never used in training. The tradeoff we measure is pass rate against cost per task.
-4. A routing harness combines the two fine-tuned models and escalates to Kimi K3 only when they disagree.
+4. An agreement harness combines the two fine-tuned models and escalates to Kimi K3 only when they disagree.
 
 ## Evaluation
 
@@ -44,7 +44,7 @@ without switching to formal English.
 | Nemotron 3 Super, untrained | 0 | 9/50 (18%) | 10-31% | | |
 | Nemotron 3 Super, LoRA v1 | 55 | 15/50 (30%) | 19-44% | 0.48 | 1.58 |
 | Nemotron 3 Super, LoRA v2 | 90 | 22/50 (44%) | 31-58% | 0.14 | 0.31 |
-| Router: Lightning v2 + Super v1, else Kimi K3 | | 27/50 (54%) | 40-67% | near Kimi's | |
+| Harness: Lightning v2 + Super v1 agree, else Kimi K3 | | 27/50 (54%) | 40-67% | near Kimi's | |
 
 - **Fine-tuning works and is data-limited.** Lightning went from 4% to 14% with 25 examples and 18% with 55; Super
   from 18% to 30% with 55 and 44% with 90. Fine-tuned Lightning (3B active) matches untrained Super (12B active).
@@ -66,7 +66,7 @@ Claude Sonnet 5.5 35/50, Nemotron 3 Ultra 23/50, Nemotron 3.5 Super VL 21/50, Ne
 review of 8 runs that judge rejected although the agent called the right tool, 4 were real mistakes and 4 were correct
 messages worded differently from the expected one, which is why the judge changed.
 
-## Routing harness: agree or escalate
+## Agreement harness: agree or escalate
 
 `reference_environment/universes/assembly/router.py`, enabled in `run_agent.py` by the `RLU_ROUTER` variable. At every
 agent step the two fine-tuned models (Lightning LoRA v2, Super LoRA v1) propose the next action in parallel. If they
@@ -79,7 +79,7 @@ Kimi K3, so cost stays near Kimi's. 57 escalations were two different read-only 
 agreement only on actions that change something (pay, order, message).
 
 ```bash
-./run_router.sh test fireworks_ai:accounts/<ACCOUNT_ID>/deployments/<LIGHTNING> \
+./run_harness.sh test fireworks_ai:accounts/<ACCOUNT_ID>/deployments/<LIGHTNING> \
   fireworks_ai:accounts/<ACCOUNT_ID>/deployments/<SUPER> fireworks_ai:accounts/fireworks/models/kimi-k3
 ```
 
@@ -151,7 +151,7 @@ Disclosed per the rules.
   and `report.py`.
 - **At the event:** all Fireworks work (Training API fine-tunes of Lightning and Super, deployments, serverless
   evaluation); the switch to the Qwen3.8-Max judge and its two prompt edits; every result in the table above; the Kimi
-  K3 synthetic data; the 25-hardest selection; the routing harness; this repository.
+  K3 synthetic data; the 25-hardest selection; the agreement harness; this repository.
 - **AI assistance:** Claude Code was used to write and run much of the code and analysis; every number above comes
   from the scripts in this repository.
 
@@ -165,7 +165,7 @@ Disclosed per the rules.
 | `select_hard.py` | keep the N hardest training examples, by task definition |
 | `train_fireworks.py` | LoRA SFT on Fireworks with the Training API cookbook |
 | `fireworks_api.py` | small Fireworks REST helper (account, models, jobs) |
-| `run_router.sh`, `reference_environment/universes/assembly/router.py` | agree-or-escalate routing harness |
+| `run_harness.sh`, `reference_environment/universes/assembly/router.py` | agree-or-escalate harness |
 | `reference_environment/universes/apps/` | the simulated Indian apps (payments, shopping, travel, health, ...) |
 | `reference_environment/universes/assembly/` | builds a task's scenario and runs the agent and judge |
 | `are/` | ARE 1.2.0 by Meta, MIT licence (`ARE_LICENSE`); judge prompts edited as disclosed |
