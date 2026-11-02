@@ -129,6 +129,10 @@ def execute(args: argparse.Namespace) -> None:
 
     output_dir = args.output_dir
     agent_usage = set_agent_reasoning(args.model, args.reasoning_effort) if args.reasoning_effort else None
+    if os.environ.get("RLU_ROUTER"):  # agree-or-escalate routing across models (router.py); --model router
+        from reference_environment.universes.assembly.router import install
+
+        install(json.loads(os.environ["RLU_ROUTER"]), output_dir / "router.jsonl")
     result = run_dataset(
         model=args.model,
         model_provider=args.provider,

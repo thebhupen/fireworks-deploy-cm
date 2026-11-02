@@ -34,8 +34,11 @@ phones. Cost per solved task is the tradeoff we measure.
 | Nemotron 3.5 Lightning, untrained | 2/50 (4%) | 0.02 |
 | Nemotron 3.5 Lightning, LoRA v1 (25 hardest training tasks) | 7/50 (14%) | 0.03 |
 | Nemotron 3.5 Lightning, LoRA v2 (all 55 training tasks) | 9/50 (18%) | 0.07 |
+| Nemotron 3 Super, untrained | 9/50 (18%) | |
+| Nemotron 3 Super, LoRA v1 (55 training tasks) | 15/50 (30%) | |
+| Router: Lightning v2 + Super v1 agree, else Kimi K3 | 27/50 (54%) | |
 
-95% Wilson intervals: Kimi K3 46-72%, untrained 1-14%, v1 7-26%, v2 10-31%. Tuned models' cost is deployment time
+95% Wilson intervals: Kimi K3 46-72%, untrained 1-14%, v1 7-26%, v2 10-31%, Super v1 19-44%, router 40-67%. Tuned models' cost is deployment time
 on one B200 at $13/h (v1 7 min, v2 17 min for 50 runs); per solved task: Kimi K3 $1.42, v2 $0.40, v1 $0.21.
 
 Costs are estimated from conversation length at list prices; pass rates are exact. Runs that never terminate
@@ -54,6 +57,23 @@ on average 8-27 replies per run carry no `Action:` the agent can execute.
 Why the judge changed: in the pilot, the Llama 3.3 70B wording check was strict. In a hand review of 8 rejected runs
 where the agent called the right tool, 4 rejections were for real mistakes (wrong dates, patient or amount) and 4
 were correct messages worded differently from the expected one. Qwen3.8-Max replaces it; the exact checks are unchanged.
+
+## Routing harness: agree or escalate
+
+`reference_environment/universes/assembly/router.py`. At every agent step two fine-tuned models (Lightning LoRA v2 and
+Super LoRA v1) propose the next action in parallel. If they choose the same tool with the same arguments (free text
+such as a message's wording is not compared), Lightning's reply is used; otherwise Kimi K3 answers that step. Nothing
+is paid, ordered or sent unless two models agree or the frontier model decides. Every decision is logged with token
+usage (`router.jsonl` beside each run).
+
+On the 50 held-out tasks: 27/50 passed (54%, 95% CI 40-67%), close to Kimi K3 alone (60%). The two models agreed on
+19% of steps; 81% went to Kimi K3, so cost stays near Kimi's. 57 escalations were two different read-only searches, so
+the next step is to require agreement only on actions that change something.
+
+```bash
+./run_router.sh test fireworks_ai:accounts/<ACCOUNT_ID>/deployments/<LIGHTNING> \
+  fireworks_ai:accounts/<ACCOUNT_ID>/deployments/<SUPER> fireworks_ai:accounts/fireworks/models/kimi-k3
+```
 
 ## Run it
 
@@ -117,6 +137,7 @@ evaluation of the tuned model on Fireworks, and the results added to this README
 | `select_hard.py` | keep the N hardest training examples, by task definition |
 | `train_fireworks.py` | LoRA SFT on Fireworks with the Training API cookbook |
 | `fireworks_api.py` | small Fireworks REST helper (account, models, jobs) |
+| `run_router.sh`, `reference_environment/universes/assembly/router.py` | agree-or-escalate routing harness |
 | `reference_environment/universes/apps/` | the simulated Indian apps (payments, shopping, travel, health, ...) |
 | `reference_environment/universes/assembly/` | builds a task's scenario and runs the agent and judge |
 | `are/` | ARE 1.2.0 by Meta, MIT licence (`ARE_LICENSE`) |
