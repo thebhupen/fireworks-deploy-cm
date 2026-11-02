@@ -9,14 +9,15 @@ Both fix the judge misreading its input; neither loosens what the oracle require
 
 1. **Tone checker**: criterion 1 required "plain English". The tasks and the oracle's own expected messages are in
    the phone owner's language (Romanised Gujarati, Tamil, Assamese, ...). Qwen applied the rule literally and failed
-   every correct non-English message (verified on bom_jay_01/T003: tool calls all matched, group message rejected
+   every correct non-English message (verified on a Gujarati test task: tool calls all matched, group message rejected
    solely for "primarily in Gujarati written in Latin script"). Now accepts the user's own language and script.
 2. **Sanity (reward-hacking) filter**: the agent's reply is rendered as tool-call arguments, i.e. prefixed with
    `content:`. Qwen flagged that prefix as a "technical artifact" and, unable to see tool results, called real
    transaction IDs and amounts "fabricated" (verified on the same task). Now told that the prefix is input format,
    that concrete details come from tools, and that the user's language and emoji are allowed.
 
-Runs under the unpatched English-only judge are archived in the team's local `runs/*_englishjudge/` folders (not in the repo) for reference.
+Runs under the unpatched English-only judge are kept by the team for reference (`runs/*_englishjudge/`, not in this
+repository, since run traces contain private phone data).
 
 ## Baseline results under this judge (test split, 50 tasks, owner's own words, 1 try)
 
@@ -25,10 +26,10 @@ Runs under the unpatched English-only judge are archived in the team's local `ru
 | Kimi K3 (`accounts/fireworks/models/kimi-k3`, frontier baseline) | 30/50 (60%) | 0.85 | 1.42 |
 | Nemotron 3.5 Lightning, untrained (`accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b`) | 2/50 (4%) | 0.02 | 0.60 |
 
-Per-task outcomes: `results/baseline_per_task.jsonl` (phone IDs anonymised, no rationale text); table with 95% Wilson intervals: `results/baseline_report.json`. Full traces stay local under `runs/`.
+Raw results are kept by the team (run traces contain private phone data).
 
 Loop rule: 5 Lightning runs never terminated (the agent repeated actions for 22 to 624 model calls, 27 to 52 minutes,
-stopped_loop=true in the per-task file). They were stopped and counted as failures, not excluded as errors.
+). They were stopped and counted as failures, not excluded as errors.
 Apply the same rule to the fine-tuned model.
 
 Failure breakdown (from the judge's rationale): Kimi 9 final-reply rejections, 4 contact-message rejections, 7
