@@ -28,13 +28,24 @@ phones. Cost per solved task is the tradeoff we measure.
 
 ## Results (held-out test phones, 50 tasks, judge Qwen3.8-Max)
 
-| Model (all on Fireworks) | Passed | Est. $/run |
-|---|---|---|
-| Kimi K3 (frontier baseline) | running | |
-| Nemotron 3.5 Lightning, untrained | running | |
-| Nemotron 3.5 Lightning, LoRA fine-tuned on 25 training tasks | training | |
+| Model (all on Fireworks) | Passed | 95% CI | Est. $/run | Est. $/solved |
+|---|---|---|---|---|
+| Kimi K3 (frontier baseline) | 30/50 (60%) | 46-72% | 0.85 | 1.42 |
+| Nemotron 3.5 Lightning, untrained | 2/50 (4%) | 1-13% | 0.02 | 0.60 |
+| Nemotron 3.5 Lightning, LoRA fine-tuned on 25 training tasks | training | | | |
 
-Costs are estimated from conversation length at list prices; pass rates are exact.
+Costs are estimated from conversation length at list prices; pass rates are exact. Per-task outcomes (no phone data)
+are in `results/baseline_per_task.jsonl`, the table in `results/baseline_report.json`.
+
+Where they fail (from the judge's rationale): Kimi K3 misses 7 tasks on tool calls and 13 on message wording (9 final
+replies to the user, 4 messages to contacts). Untrained Lightning misses 33 on tool calls, 10 on wording, and 5 runs
+never finished: the agent repeated actions for 22 to 624 model calls (27 to 52 minutes) until stopped; those count as
+failures, not errors, and the same rule applies to the fine-tuned model.
+
+Two judge prompts were corrected before these runs, identically for every model (details in `JUDGE_CHANGES.md`):
+ARE's tone check required "plain English" and Qwen failed every correct Gujarati or Tamil message; its reward-hacking
+filter read the `content:` field prefix as an artifact and real transaction IDs as fabricated. The exact checks and
+the oracle are unchanged.
 
 Pilot before the event (same 50 tasks, older judge Llama 3.3 70B, via OpenRouter): Claude Sonnet 5.5 35/50, Nemotron
 3 Ultra 23/50, Nemotron 3.5 Super 21/50, Nemotron 3.5 Lightning 6/49. Untrained Lightning fails mostly on format:
