@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from collections import defaultdict
 from pathlib import Path
 
@@ -23,6 +24,16 @@ PRICES = {  # (input, output) USD per million tokens
     "google/gemini-4-argon": (2.00, 10.00),
 }
 CHARS_PER_TOKEN = 3
+
+
+def wilson(passed: int, runs: int, z: float = 1.96) -> tuple[float, float]:
+    """95% Wilson score interval for a pass rate; sound for small samples and rates near 0 or 1."""
+    if not runs:
+        return 0.0, 0.0
+    p = passed / runs
+    centre = (p + z * z / (2 * runs)) / (1 + z * z / runs)
+    half = z * math.sqrt(p * (1 - p) / runs + z * z / (4 * runs * runs)) / (1 + z * z / runs)
+    return centre - half, centre + half
 
 
 def usage(run_dir: Path) -> tuple[int, int, int]:
@@ -65,18 +76,30 @@ def main() -> None:
             row["steps"] += steps
             row["cost"] += (tokens_in * price_in + tokens_out * price_out) / 1e6
 
-    print(f"{'model':45} {'prompt':7} {'passed':>9} {'rate':>6} {'steps':>6} {'$/run':>7} {'$/solved':>9}  errors")
+    print(
+        f"{'model':45} {'prompt':7} {'passed':>9} {'rate':>6} {'95% CI':>11} {'steps':>6} {'$/run':>7} {'$/solved':>9}"
+        "  errors"
+    )
     table = []
     for (model, variant), row in sorted(rows.items(), key=lambda kv: -kv[1]["passed"] / max(kv[1]["runs"], 1)):
         runs = max(row["runs"], 1)
         per_run = row["cost"] / runs
         per_solved = row["cost"] / row["passed"] if row["passed"] else float("nan")
+        low, high = wilson(row["passed"], row["runs"])
         print(
             f"{model:45} {variant:7} {row['passed']:>4}/{row['runs']:<4} {row['passed'] / runs:>6.0%} "
+            f"{f'{low:.0%}-{high:.0%}':>11} "
             f"{row['steps'] / runs:>6.1f} {per_run:>7.3f} {per_solved:>9.3f}  {row['errors']}"
         )
         table.append(
-            {"model": model, "variant": variant, **row, "cost_per_run": per_run, "cost_per_solved": per_solved}
+            {
+                "model": model,
+                "variant": variant,
+                **row,
+                "ci95": [low, high],
+                "cost_per_run": per_run,
+                "cost_per_solved": per_solved,
+            }
         )
     if args.json:
         args.json.write_text(json.dumps(table, indent=2))
