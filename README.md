@@ -39,19 +39,22 @@ without switching to formal English.
 |---|---|---|---|---|---|
 | Kimi K3 (frontier baseline) | | 30/50 (60%) | 46-72% | 0.85 | 1.42 |
 | Nemotron 3.5 Lightning, untrained | 0 | 2/50 (4%) | 1-14% | 0.02 | 0.60 |
-| Nemotron 3.5 Lightning, LoRA v1 | 25 | 7/50 (14%) | 7-26% | 0.03 | 0.21 |
-| Nemotron 3.5 Lightning, LoRA v2 | 55 | 9/50 (18%) | 10-31% | 0.07 | 0.40 |
+| Nemotron 3.5 Lightning, LoRA v1 | 25 | 7/50 (14%) | 7-26% | 0.02 | 0.11 |
+| Nemotron 3.5 Lightning, LoRA v2 | 55 | 9/50 (18%) | 10-31% | 0.04 | 0.23 |
 | Nemotron 3 Super, untrained | 0 | 9/50 (18%) | 10-31% | | |
-| Nemotron 3 Super, LoRA v1 | 55 | 15/50 (30%) | 19-44% | 0.48 | 1.58 |
-| Nemotron 3 Super, LoRA v2 | 90 | 22/50 (44%) | 31-58% | 0.14 | 0.31 |
+| Nemotron 3 Super, LoRA v1 | 55 | 15/50 (30%) | 19-44% | 0.10 | 0.32 |
+| Nemotron 3 Super, LoRA v2 | 90 | 22/50 (44%) | 31-58% | 0.10 | 0.22 |
 | Harness: Lightning v2 + Super v1 agree, else Kimi K3 | | 27/50 (54%) | 40-67% | near Kimi's | |
 
 - **Fine-tuning works and is data-limited.** Lightning went from 4% to 14% with 25 examples and 18% with 55; Super
   from 18% to 30% with 55 and 44% with 90. Fine-tuned Lightning (3B active) matches untrained Super (12B active).
-- **Cost.** Kimi K3 and untrained Lightning: serverless, estimated from tokens at list prices. Tuned models: the
-  deployment's GPU time for the 50 runs (one B200 at $13/h for Lightning, 7 and 17 minutes; four B200s at $52/h for
-  Super, 27 and 8 minutes). A dedicated deployment is billed by the hour, so cost per task depends on how busy it
-  is: tuned Lightning is about 12x cheaper per task than Kimi K3, Super LoRA v2 about 6x (4.6x per solved task).
+- **Inference cost per task ($).** Kimi K3 and untrained Lightning run serverless: estimated from the conversation's
+  tokens at list price. Fine-tuned models run on dedicated deployments billed by GPU time ($13/h per B200; one for
+  Lightning, four for Super): cost = deployment time while serving the 50 tasks, up to the 49th finished task, divided
+  by 50. Measuring to the 50th task instead lets one runaway run decide the price (it doubled Lightning v2's and
+  quintupled Super v1's), which says nothing about the model. On this basis fine-tuned Lightning is about 20x cheaper
+  per task than Kimi K3 and fine-tuned Super about 9x. With 50 tasks these are estimates; a busy production
+  deployment costs less per task.
 - **What fine-tuning changed.** Untrained Lightning mostly fails on format: 8-27 replies per run carry no `Action:`
   the agent can execute. After LoRA v1 it was about 3 per run; the remaining failures are wrong decisions.
 
