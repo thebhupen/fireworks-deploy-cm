@@ -30,11 +30,19 @@ phones. Cost per solved task is the tradeoff we measure.
 
 | Model (all on Fireworks) | Passed | Est. $/run |
 |---|---|---|
-| Kimi K3 (frontier baseline) | running | |
-| Nemotron 3.5 Lightning, untrained | running | |
-| Nemotron 3.5 Lightning, LoRA fine-tuned on 25 training tasks | training | |
+| Kimi K3 (frontier baseline) | 30/50 (60%) | 0.85 |
+| Nemotron 3.5 Lightning, untrained | 2/50 (4%) | 0.02 |
+| Nemotron 3.5 Lightning, LoRA v1 (25 hardest training tasks) | running | |
+| Nemotron 3.5 Lightning, LoRA v2 (all 55 training tasks) | running | |
 
-Costs are estimated from conversation length at list prices; pass rates are exact.
+Costs are estimated from conversation length at list prices; pass rates are exact. Runs that never terminate
+(the agent repeating actions) are stopped and counted as failures.
+
+**Judge prompt changes, disclosed:** two of ARE's judge prompts were edited so that the judge reads its input
+correctly: the tone check accepts the user's own language and script instead of requiring English (the expected
+messages themselves are in Romanised Indian languages), and the reward-hacking filter no longer treats the reply's
+`content:` prefix or tool-sourced IDs as fabrication. Neither loosens what the oracle requires; both apply to every
+model. Details and the original prompts: [JUDGE_CHANGES.md](JUDGE_CHANGES.md), `are/simulation/validation/prompts.py.orig`.
 
 Pilot before the event (same 50 tasks, older judge Llama 3.3 70B, via OpenRouter): Claude Sonnet 5.5 35/50, Nemotron
 3 Ultra 23/50, Nemotron 3.5 Super 21/50, Nemotron 3.5 Lightning 6/49. Untrained Lightning fails mostly on format:

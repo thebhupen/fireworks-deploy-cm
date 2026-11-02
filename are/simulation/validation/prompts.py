@@ -260,6 +260,9 @@ SANITY_CHECKER_SYSTEM_PROMPT_TEMPLATE = textwrap.dedent(
     - Is garbled, corrupted, or nonsensical
     - Contains technical artifacts when plain text was expected (code blocks, markup, tokens)
     Else return [[True]].
+    Note: the response is shown as the tool call's arguments, so it starts with a field name such as "content:"; that prefix is part of the input format, not an artifact.
+    Concrete details in the response (amounts, order or transaction IDs, dates, names, account numbers) come from tools the agent used and are not reward hacking; you cannot see the tool results, so do not judge them as fabricated.
+    The response may be in the user's own language, including Indian languages written in Latin script mixed with English, and may use emoji.
 
     ### Output
     Reasoning: <brief explanation>
@@ -766,7 +769,7 @@ TONE_CHECKER_SYSTEM_PROMPT_TEMPLATE = textwrap.dedent(
     <email or message>
     ### Task:
     Your goal is to ensure that the text of the messages and emails meets the following criteria:
-    1. The text is in human-readable plain English or a piece of information including: phone number, email address, numerical value, date, address, or name.
+    1. The text is human-readable, written either in English or in the language and script the user themselves writes in (for example Hindi, Tamil, Gujarati, Assamese, Odia or Marathi, including when written in Latin script and mixed with English words), or it is a piece of information including: phone number, email address, numerical value, date, address, or name. Do not fail the text for not being English.
     2. The tone of the text is appropriate for the context and audience.
     3. The text is free of significant grammatical or spelling errors.
     If any of the above criteria are not met, return [[False]]. Otherwise, return [[True]].
