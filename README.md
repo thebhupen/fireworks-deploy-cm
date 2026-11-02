@@ -20,25 +20,29 @@ phones. Cost per solved task is the tradeoff we measure.
   (Agents Research Environments), each with a person's contacts, chats, email, calendar and apps.
 - 184 tasks on 11 phones, each with the expected tool calls (oracle). Split by phone: 50 test tasks on 3 held-out
   phones (Tamil, Assamese, Gujarati owners), 134 training tasks on the other 8. No test phone is used for training.
-- Every model runs with ARE's default agent, one try per task, and the same judge (ARE's judge: exact checks on
-  tool arguments such as IDs, amounts and dates, plus an LLM check on message wording, Llama 3.3 70B).
+- Every model runs with ARE's default agent, one try per task, and the same judge: ARE's judge, with exact checks on
+  tool arguments (IDs, amounts, dates, recipients) and an LLM check on message wording by **Qwen3.8-Max on
+  Fireworks**, a different model family from both the frontier model and the student.
+- Models, all on Fireworks: **Kimi K3** (frontier baseline), **Nemotron 3.5 Lightning** (student, before and after
+  fine-tuning).
 
-## Results so far (held-out test phones)
+## Results (held-out test phones, 50 tasks, judge Qwen3.8-Max)
 
-| Model | Passed | Est. $/run |
+| Model (all on Fireworks) | Passed | Est. $/run |
 |---|---|---|
-| Claude Sonnet 5.5 (frontier baseline) | 35/50 (70%) | 0.50 |
-| Nemotron 3 Ultra | 23/50 (46%) | 0.12 |
-| Nemotron 3.5 Super | 21/50 (42%) | 0.04 |
-| Nemotron 3.5 Lightning, untrained (OpenRouter) | 6/49 (12%) | 0.08 |
-| Nemotron 3.5 Lightning, untrained (Fireworks serverless) | running | |
-| Nemotron 3.5 Lightning, fine-tuned on Fireworks (25 hardest training tasks) | training | |
+| Kimi K3 (frontier baseline) | running | |
+| Nemotron 3.5 Lightning, untrained | running | |
+| Nemotron 3.5 Lightning, LoRA fine-tuned on 25 training tasks | training | |
 
 Costs are estimated from conversation length at list prices; pass rates are exact.
 
-Known limitation: the judge's wording check is strict. In a hand review of 8 rejected runs where the agent called the
-right tool, 4 rejections were for real mistakes (wrong dates, patient or amount) and 4 were correct messages worded
-differently from the expected one. It applies equally to every model.
+Pilot before the event (same 50 tasks, older judge Llama 3.3 70B, via OpenRouter): Claude Sonnet 5.5 35/50, Nemotron
+3 Ultra 23/50, Nemotron 3.5 Super 21/50, Nemotron 3.5 Lightning 6/49. Untrained Lightning fails mostly on format:
+on average 8-27 replies per run carry no `Action:` the agent can execute.
+
+Why the judge changed: in the pilot, the Llama 3.3 70B wording check was strict. In a hand review of 8 rejected runs
+where the agent called the right tool, 4 rejections were for real mistakes (wrong dates, patient or amount) and 4
+were correct messages worded differently from the expected one. Qwen3.8-Max replaces it; the exact checks are unchanged.
 
 ## Run it
 
@@ -47,10 +51,10 @@ the repository root.
 
 ```bash
 ./setup.sh                                   # Python 3.12 venv via uv, exact package versions
-export OPENROUTER_API_KEY=...                # the judge runs on OpenRouter
-export FIREWORKS_AI_API_KEY=...              # for fireworks_ai: models
-./run.sh test openrouter:nvidia/nemotron-3.5-lightning
-./run.sh test fireworks_ai:accounts/<ACCOUNT_ID>/models/<MODEL_ID>
+export FIREWORKS_AI_API_KEY=...              # models and the judge (Qwen3.8-Max) run on Fireworks
+WORKERS=12 ./run.sh test fireworks_ai:accounts/fireworks/models/kimi-k3 \
+  fireworks_ai:accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b
+./run.sh test fireworks_ai:accounts/<ACCOUNT_ID>/models/<TUNED_MODEL_ID>
 python3 report.py runs/test/results.jsonl    # pass rate, steps, cost per run and per solved task
 ```
 

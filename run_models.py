@@ -39,9 +39,11 @@ def openrouter_credit_left() -> float:
         return _credit["left"]
 
 
-def run_one(pkg: Path, out: Path, provider: str, model: str, item: dict, attempt: int, variant: str | None) -> None:
-    # The judge always runs on OpenRouter, so every run needs credit there.
-    if openrouter_credit_left() < MIN_CREDIT_USD:
+def run_one(
+    pkg: Path, out: Path, provider: str, model: str, item: dict, attempt: int, variant: str | None, judge: str
+) -> None:
+    # An OpenRouter judge or model needs credit there.
+    if "openrouter:" in f"{judge} {provider}:" and openrouter_credit_left() < MIN_CREDIT_USD:
         print("skipped, OpenRouter credit low:", model, item["phone"], item["task"], flush=True)
         return
     phone = (pkg / "frozen" / item["phone"] / item["version"]).resolve()
@@ -64,6 +66,7 @@ def run_one(pkg: Path, out: Path, provider: str, model: str, item: dict, attempt
         "task": item["task"],
         "try": attempt,
         "variant": variant or "owner",
+        "judge": judge,
     }
     command = [
         PY,
@@ -76,6 +79,10 @@ def run_one(pkg: Path, out: Path, provider: str, model: str, item: dict, attempt
         provider,
         "--runs",
         "1",
+        "--judge-provider",
+        judge.split(":", 1)[0],
+        "--judge-model",
+        judge.split(":", 1)[1],
     ] + (["--prompt-variant", variant] if variant else [])
     with open(folder / "run.log", "a", encoding="utf-8") as log:
         try:
@@ -149,6 +156,11 @@ def main() -> None:
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--split-file", default="split.json", help="a split file in <pkg>")
     parser.add_argument("--only-unsolved", action="store_true", help="skip tasks this model already solved")
+    parser.add_argument(
+        "--judge",
+        default="openrouter:meta-llama/llama-3.3-70b-instruct",
+        help="provider:model of the judge's LLM checks; keep one judge per <out> folder",
+    )
     args = parser.parse_args()
     args.pkg, args.out = args.pkg.resolve(), args.out.resolve()  # the runs execute from /app
 
@@ -176,7 +188,8 @@ def main() -> None:
                 jobs.append((provider, model, item, attempt))
     print(f"{len(jobs)} runs", flush=True)
     with ThreadPoolExecutor(args.workers) as pool:
-        for future in [pool.submit(run_one, args.pkg, args.out, p, m, i, a, args.variant) for p, m, i, a in jobs]:
+        futures = [pool.submit(run_one, args.pkg, args.out, *job, args.variant, args.judge) for job in jobs]
+        for future in futures:
             future.result()
     print("ALLDONE", flush=True)
 
