@@ -120,7 +120,8 @@ cookbook/training/.venv/bin/python train_fireworks.py --dataset sft/train.jsonl 
 ```
 
 Hyperparameters (defaults in `train_fireworks.py`): LoRA rank 16, 3 epochs, batch size 8, learning rate 1e-4, max
-context 64k. Training loss fell from about 0.36 to 0.10-0.15 in every run. These are standard starting values; we did
+context 64k. Training loss fell from about 0.36 to 0.10-0.14 (Lightning v1, v2, Super v1) and from 0.47 to 0.24 for Super v2, whose
+Kimi K3 examples were new to it. These are standard starting values; we did
 not tune them (that needs a validation split of training phones, never the test set).
 
 LoRA models are served on an on-demand deployment with live merge (`POST /v1/accounts/<ACCOUNT_ID>/deployments` with
