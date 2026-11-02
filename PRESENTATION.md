@@ -64,7 +64,7 @@ right tool with wrong arguments, in v1).
 ## Message (v2 is in: 4% untrained to 18% tuned, intervals do not overlap)
 
 "With 55 examples and one LoRA run on Fireworks, a 3B-active model went from 4% to 18% on phones it had never seen,
-about 4.5x, at about 12x lower cost per task than the frontier model. Data is the lever: 25 to 55 examples took it from
+about 4.5x, at about 20x lower inference cost per task than the frontier model. Data is the lever: 25 to 55 examples took it from
 14% to 18%. Next: a second teacher (Kimi K3, 60%) for more training data, then a learning-rate and epoch sweep on
 held-out validation phones."
 
