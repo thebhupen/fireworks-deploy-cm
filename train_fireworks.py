@@ -24,14 +24,16 @@ def run() -> None:
     parser.add_argument("--learning-rate", type=float, default=1e-4)
     parser.add_argument("--lora-rank", type=int, default=16)
     parser.add_argument("--max-seq-len", type=int, default=65536)
+    parser.add_argument("--base-model", default="accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b")
+    parser.add_argument("--tokenizer", default="nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16")
     args = parser.parse_args()
 
     main(
         Config(
             log_path=str(HERE / "sft" / args.output_model),
-            base_model="accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",
+            base_model=args.base_model,
             dataset=str(args.dataset),
-            tokenizer_model="nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+            tokenizer_model=args.tokenizer,
             max_seq_len=args.max_seq_len,
             epochs=args.epochs,
             batch_size=args.batch_size,
