@@ -1,0 +1,139 @@
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ * 
+ * This source code is licensed under the terms described in the LICENSE file in
+ * the root directory of this source tree.
+ */
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.section-content-padded {
+  padding-top: 15px;
+  padding-left: 35px;
+  padding-bottom: 15px;
+  padding-right: 35px;
+}
+
+.section-flex-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.app-card {
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 0;
+  padding: 4px;
+  background-color: #3b4c63;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  position: relative;
+}
+
+.app-card:active {
+  top: 1px;
+}
+
+.app-card:focus {
+  outline: none;
+}
+
+.app-card:hover {
+  opacity: 0.8;
+}
+
+.app-table {
+  height: 500px;
+}
+
+.section-right-button {
+  min-width: 150px;
+}
+
+.drawer-content-padded {
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.console-font {
+  font-family: monospace, monospace, sans-serif;
+  font-size: 0.8em;
+  font-weight: bolder;
+  color: lightblue;
+}
+
+.input-invalid {
+  border: 1px solid red;
+}
+
+.app-section-bottom-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: auto;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+@keyframes thinking {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+#printable {
+  display: none;
+  color: black;
+  overflow: auto;
+  height: 100vh;
+  width: 100vw;
+  padding: 24px;
+}
+
+@media print {
+  #printable {
+    display: block;
+  }
+
+  h1 {
+    font-size: 2.5em;
+  }
+
+  * {
+    overflow: visible !important;
+  }
+
+  #root {
+    display: none;
+  }
+}
+
+.fc-scrollgrid-sync-table,
+.fc-daygrid-body,
+.fc-col-header {
+  width: 100% !important;
+}

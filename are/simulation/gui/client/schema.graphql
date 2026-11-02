@@ -1,0 +1,249 @@
+type AgentLogForGraphQL {
+  type: AgentLogTypeForGraphQL!
+  id: String!
+  timestamp: Float
+  groupId: String
+  content: String
+  agentName: String
+  startId: String
+  input: String
+  output: String
+  actionName: String
+  appName: String
+  exception: String
+  exceptionStackTrace: String
+  attachments: [AttachmentForGraphQL!]
+  isSubagent: Boolean!
+}
+
+enum AgentLogTypeForGraphQL {
+  SYSTEM_PROMPT
+  TASK
+  LLM_OUTPUT_THOUGHT_ACTION
+  LLM_INPUT
+  LOG
+  RATIONALE
+  TOOL_CALL
+  OBSERVATION
+  STEP
+  SUBAGENT
+  FINAL_ANSWER
+  ERROR
+  THOUGHT
+  PLAN
+  FACTS
+  REPLAN
+  REFACTS
+  AGENT_STOP
+  CODE_EXECUTION_RESULT
+  CODE_STATE_UPDATE
+  END_TASK
+  LLM_OUTPUT_PLAN
+  LLM_OUTPUT_FACTS
+}
+
+type AnnotationForGraphQL {
+  scenarioId: String!
+  annotator: String!
+  validationDecision: String
+  createdAt: String!
+  validatedAt: String
+  lastUpdatedAt: String!
+  version: Int!
+  vendor: String!
+  batchId: String
+  comment: String
+}
+
+type AppForGraphQL {
+  appName: String!
+  appTools: [AppToolForGraphQL!]!
+}
+
+type AppToolForGraphQL {
+  name: String!
+  role: String!
+  params: [AppToolParamsForGraphQL!]!
+  description: String
+  returnDescription: String
+  writeOperation: Boolean
+}
+
+type AppToolParamsForGraphQL {
+  name: String!
+  argType: String!
+  description: String
+  hasDefaultValue: Boolean!
+  defaultValue: String
+  exampleValue: String
+}
+
+type AttachmentForGraphQL {
+  length: Int!
+  mime: String!
+  url: String!
+}
+
+type BugReportForGraphQL {
+  bugReportId: Int!
+  reporter: String!
+  createdAt: String!
+  blobData: String!
+}
+
+enum CapabilityTag {
+  Planning
+  Memory
+  Collaboration
+  Exploration
+  UnitTest
+  PromptInjection
+  Universe
+  Safety
+  Adaptability
+  Ambiguity
+  Execution
+  Search
+  Time
+  Security
+}
+
+enum EnvironmentState {
+  SETUP
+  RUNNING
+  STOPPED
+  PAUSED
+  FAILED
+}
+
+type EnvironmentSubscriptionState {
+  appsStateJson: String
+  eventLogJson: String
+  initialEventQueueJson: String
+  envState: EnvironmentState
+  hints: [Hint!]
+  worldLogs: [AgentLogForGraphQL!]
+  environmentTime: Float
+}
+
+enum EventTimeComparator {
+  LESS_THAN
+  GREATER_THAN
+  EQUAL
+}
+
+enum EventType {
+  AGENT
+  ENV
+  CONDITION
+  VALIDATION
+  USER
+  STOP
+}
+
+type ExecuteAppToolResultForGraphQL {
+  appsStateJson: String!
+  returnValue: String
+}
+
+type Hint {
+  hintType: HintType!
+  content: String!
+  associatedEventId: String!
+}
+
+enum HintType {
+  TASK_HINT
+  ENVIRONMENT_HINT
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
+type Mutation {
+  setScenario(scenarioId: String!, sessionId: String!): ScenarioForGraphQL
+  setAgentName(agentId: String, sessionId: String!): JSON
+  setAgentConfig(agentConfig: JSON, sessionId: String!): JSON
+  play(sessionId: String!): ScenarioForGraphQL
+  pause(sessionId: String!): ScenarioForGraphQL
+  stop(sessionId: String!): ScenarioForGraphQL
+  load(sessionId: String!): ScenarioForGraphQL
+  deleteLogsAfter(id: String!, sessionId: String!, edit: String): ScenarioForGraphQL
+  amendAndReplay(sessionId: String!, logId: String!, content: String!): ScenarioForGraphQL
+  sendUserMessageToAgent(message: String!, attachments: [[String!]!], sessionId: String!): String!
+  sendConversationMessage(sessionId: String!, messagingAppName: String!, conversationId: String!, sender: String!, message: String!): Boolean!
+  addScenarioEvent(sessionId: String!, app: String!, function: String!, parameters: String!, predecessorEventIds: [String!]!, eventType: EventType!, eventRelativeTime: Float = null, eventTime: Float = null, eventTimeComparator: EventTimeComparator = null): String!
+  editScenarioEvent(sessionId: String!, app: String!, function: String!, parameters: String!, eventId: String!, eventType: EventType!, predecessorEventIds: [String!]!, eventRelativeTime: Float = null, eventTime: Float = null, eventTimeComparator: EventTimeComparator = null): String!
+  editScenarioDuration(sessionId: String!, duration: Float): Float
+  editTimeIncrement(sessionId: String!, timeIncrementInSeconds: Int!): Int!
+  deleteScenarioEvent(sessionId: String!, eventId: String!): Void
+  deleteAllScenarioEvents(sessionId: String!): Void
+  setAnnotatorName(sessionId: String!, name: String): String
+  setOverridePhoneNumber(sessionId: String!, overridePhoneNumber: String): String
+  initConnectWithSessionId(sessionId: String!): String!
+  importTrace(traceJson: String!, sessionId: String!, replayLogs: Boolean!): ScenarioForGraphQL
+  importFromDb(scenarioId: String!, sessionId: String!): ScenarioForGraphQL
+  executeAppTool(sessionId: String!, appName: String!, toolName: String!, kwargs: String!): ExecuteAppToolResultForGraphQL!
+  saveAnnotation(sessionId: String!, scenarioId: String!, validationDecision: String, annotationId: String, annotatorName: String, comment: String = null): Boolean!
+  importFromHuggingface(datasetName: String!, datasetConfig: String!, datasetSplit: String!, scenarioId: String!, sessionId: String!): ScenarioForGraphQL
+  importFromLocalJsonDataset(capability: String!, filename: String!, sessionId: String!, replayLogs: Boolean!): ScenarioForGraphQL
+  editHintContent(eventId: String!, hintContent: String!, sessionId: String!): ScenarioForGraphQL
+  uploadFile(sessionId: String!, filesystemAppName: String!, fileName: String!, fileContent: String!, destinationPath: String!): Boolean!
+}
+
+type Query {
+  allScenarios: [String!]!
+  activeScenario(sessionId: String!): ScenarioForGraphQL
+  allAgents: [String!]!
+  agentName(sessionId: String!): String
+  agentConfig(sessionId: String!): JSON
+  reportBug(sessionId: String!, scenarioId: String, reporter: String!, context: String): String
+  exportTraceData(sessionId: String!, scenarioId: String!, validationDecision: String, annotationId: String, annotatorName: String, comment: String = null, tags: [CapabilityTag!] = null): String
+  exportAnnotatedTraceData(sessionId: String!, scenarioId: String!, category: String = null, isViolating: Boolean = null, hasArsViolation: Boolean = null, hasCrsViolation: Boolean = null, isFalseRefusal: Boolean = null, annotationId: String = null, annotatorName: String = null, groupId: String = null, attackCategory: String = null, references: String = null, additionalNotes: String = null): String
+  getFileContent(sessionId: String!, filesystemAppName: String!, filePath: String!): String
+  downloadFile(sessionId: String!, filesystemAppName: String!, filePath: String!): String
+  defaultUiView: String
+  getAnnotationsFromDb(sessionId: String!): [AnnotationForGraphQL!]!
+  getBugReportsFromDb(sessionId: String!, withBlob: Boolean! = false, whereId: Int = null, limit: Int! = 20, offset: Int! = 0): [BugReportForGraphQL!]!
+  serverInfo: ServerInfoForGraphQL!
+  getHuggingfaceDatasetConfigs(datasetName: String!): [String!]
+  getHuggingfaceDatasetSplits(datasetName: String!, datasetConfig: String!): [String!]
+  getHuggingfaceScenarios(datasetName: String!, datasetConfig: String!, datasetSplit: String!): [String!]
+  saveAnnotatedTraceToDb(sessionId: String!, scenarioId: String!, category: String = null, isViolating: Boolean = null, hasArsViolation: Boolean = null, hasCrsViolation: Boolean = null, isFalseRefusal: Boolean = null, annotationId: String = null, annotatorName: String = null, groupId: String = null, attackCategory: String = null, references: String = null, additionalNotes: String = null): String
+  getInteractiveScenariosTree: JSON
+  getLocalJsonDatasetCapabilities(sessionId: String!): [String!]!
+  getLocalJsonDatasetFiles(sessionId: String!, capability: String!): [String!]!
+  getDefaultScenarioId: String
+}
+
+type ScenarioForGraphQL {
+  scenarioId: String!
+  startTime: Float
+  duration: Float
+  timeIncrementInSeconds: Int
+  apps: [AppForGraphQL!]!
+  status: String!
+  comment: String
+  annotationId: String
+  hints: [Hint!]
+  tags: [CapabilityTag!]
+  guiConfig: ScenarioGUIConfigForGraphQL!
+}
+
+type ScenarioGUIConfigForGraphQL {
+  showTimestamps: Boolean!
+}
+
+type ServerInfoForGraphQL {
+  serverId: String!
+  serverVersion: String!
+}
+
+type Subscription {
+  environmentSubscriptionState(sessionId: String!): EnvironmentSubscriptionState!
+}
+
+"""Represents NULL values"""
+scalar Void

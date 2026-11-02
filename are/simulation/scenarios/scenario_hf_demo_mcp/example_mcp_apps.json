@@ -1,0 +1,52 @@
+{
+  "mcpServers": {
+    "MathTools": {
+      "command": "python",
+      "args": [
+        "are/simulation/scenarios/scenario_mcp_demo/math_server.py"
+      ]
+    },
+    "TextTools": {
+      "command": "python",
+      "args": [
+        "are/simulation/scenarios/scenario_mcp_demo/text_server.py"
+      ]
+    },
+    "UtilityTools": {
+      "command": "python",
+      "args": [
+        "are/simulation/scenarios/scenario_mcp_demo/utility_server.py"
+      ]
+    },
+    "TodoApp": {
+      "command": "python",
+      "args": [
+        "are/simulation/scenarios/scenario_mcp_demo/todo_server.py"
+      ]
+    },
+    "TodoReadOnly": {
+      "command": "python",
+      "args": [
+        "are/simulation/scenarios/scenario_mcp_demo/todo_server.py"
+      ],
+      "env": {
+        "ONLY_READ_ONLY": "true"
+      }
+    },
+    "api-server-example": {
+      "type": "sse",
+      "url": "${API_BASE_URL:-https://api.example.com}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${API_KEY}",
+        "Content-Type": "application/json"
+      }
+    },
+    "home-assistant": {
+      "type": "sse",
+      "url": "http://192.168.0.189:8123/mcp_server/sse",
+      "headers": {
+        "Authorization": "Bearer YOURLONGLIVEDTOKENS"
+      }
+    }
+  }
+}

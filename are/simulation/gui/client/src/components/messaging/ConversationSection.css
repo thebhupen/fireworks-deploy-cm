@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ * 
+ * This source code is licensed under the terms described in the LICENSE file in
+ * the root directory of this source tree.
+ */
+
+.message-bubble {
+  max-width: 70%;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 8px 0;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.message-bubble a:link {
+  color: #2d72d2;
+}
+
+.message-bubble-left {
+  background-color: #e0e0e0;
+  color: #333;
+  align-self: flex-start;
+  border-top-left-radius: 0;
+}
+
+.message-bubble-right {
+  background-color: #2d72d2;
+  color: white;
+  align-self: flex-end;
+  border-top-right-radius: 0;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-sender {
+  font-weight: bold;
+  font-size: 12px; /* Slightly smaller for the sender name */
+  margin-bottom: 5px;
+}
+
+.message-text {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.message-timestamp {
+  color: #222;
+  text-align: right;
+  margin-top: 5px;
+  display: block;
+}
+
+.message-bubble-right .message-timestamp {
+  color: #ddd;
+}

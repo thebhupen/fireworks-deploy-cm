@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ * 
+ * This source code is licensed under the terms described in the LICENSE file in
+ * the root directory of this source tree.
+ */
+
+.aui-closed {
+  width: 30px;
+  min-width: 30px;
+}
+
+.aui-open {
+  width: 400px;
+  min-width: 400px;
+}
+
+.aui-show-button {
+  position: relative;
+  top: 50px;
+}
+
+.aui-closed .aui-show-button {
+  left: 0px;
+}
+
+.aui-open .aui-show-button {
+  left: 370px;
+}
+
+.aui-header {
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+  height: 50px;
+}
+
+.aui-input {
+  width: 310px;
+  margin-right: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.aui-input-group {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+.aui-messages-container {
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: scroll;
+  gap: 10px;
+  padding: 10px;
+  position: absolute;
+  top: 80px;
+  bottom: 50px;
+  width: 400px;
+}
+
+.aui-messages-container-section {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.aui-message-bubble {
+  max-width: 70%;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 8px 0;
+  position: relative;
+  font-size: 12px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.aui-message-bubble a:link {
+  color: #2d72d2;
+}
+
+.aui-message-bubble-left {
+  background-color: #e0e0e0;
+  color: #333;
+  align-self: flex-start;
+  border-top-left-radius: 0;
+}
+
+.aui-message-bubble-right {
+  background-color: #2d72d2;
+  color: white;
+  align-self: flex-end;
+  border-top-right-radius: 0;
+}
+
+.aui-message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.aui-message-sender {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.aui-message-text {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.aui-message-timestamp {
+  color: #222;
+  text-align: right;
+  margin-top: 5px;
+  display: block;
+}
+
+.aui-message-bubble-right .aui-message-timestamp {
+  color: #ddd;
+}
+
+.aui-text-input {
+  font-size: 16px;
+  color: white;
+  border-color: transparent;
+  border-radius: 16px;
+  padding-top: 12px;
+  padding-bottom: 60px;
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #2a2a2a;
+  margin: 0;
+  width: 100%;
+  resize: none;
+  font-family: system-ui;
+}
+
+.aui-text-input:focus {
+  outline: none;
+}

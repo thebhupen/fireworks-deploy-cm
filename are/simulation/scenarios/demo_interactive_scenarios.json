@@ -1,0 +1,24 @@
+{
+  "scenario_hf_demo_mcp": {
+    "id": "scenario_hf_demo_mcp",
+    "label": "Demo with MCP",
+    "defaultQuestions": {
+      "Briefly summarize the last 3 emails I have received": {
+        "draft a response for the HiveMind one, I would like to move the webinar time. Check my calendar to find an appropriate time.": {
+            "send it please": {}
+        }
+      },
+      "Send a birthday party invitation to all of my contacts living in Menlo Park": {},
+      "Help me prep for my AI work meetings this week": {}
+    }
+  },
+  "universe_hf_4": {
+    "id": "universe_hf_4",
+    "label": "Custom Demo Scenario",
+    "defaultQuestions": {
+      "Briefly summarize the last 3 emails I have received": {},
+      "Send a birthday party invitation to all of my contacts living in Menlo Park": {},
+      "Help me prep for my AI work meetings this week": {}
+    }
+  }
+}
