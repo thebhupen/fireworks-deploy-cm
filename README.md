@@ -32,8 +32,11 @@ phones. Cost per solved task is the tradeoff we measure.
 |---|---|---|
 | Kimi K3 (frontier baseline) | 30/50 (60%) | 0.85 |
 | Nemotron 3.5 Lightning, untrained | 2/50 (4%) | 0.02 |
-| Nemotron 3.5 Lightning, LoRA v1 (25 hardest training tasks) | running | |
-| Nemotron 3.5 Lightning, LoRA v2 (all 55 training tasks) | running | |
+| Nemotron 3.5 Lightning, LoRA v1 (25 hardest training tasks) | 7/50 (14%) | 0.03 |
+| Nemotron 3.5 Lightning, LoRA v2 (all 55 training tasks) | 9/50 (18%) | 0.07 |
+
+95% Wilson intervals: Kimi K3 46-72%, untrained 1-14%, v1 7-26%, v2 10-31%. Tuned models' cost is deployment time
+on one B200 at $13/h (v1 7 min, v2 17 min for 50 runs); per solved task: Kimi K3 $1.42, v2 $0.40, v1 $0.21.
 
 Costs are estimated from conversation length at list prices; pass rates are exact. Runs that never terminate
 (the agent repeating actions) are stopped and counted as failures.

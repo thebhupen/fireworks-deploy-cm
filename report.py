@@ -33,7 +33,7 @@ def wilson(passed: int, runs: int, z: float = 1.96) -> tuple[float, float]:
     p = passed / runs
     centre = (p + z * z / (2 * runs)) / (1 + z * z / runs)
     half = z * math.sqrt(p * (1 - p) / runs + z * z / (4 * runs * runs)) / (1 + z * z / runs)
-    return centre - half, centre + half
+    return max(0.0, centre - half), min(1.0, centre + half)
 
 
 def usage(run_dir: Path) -> tuple[int, int, int]:

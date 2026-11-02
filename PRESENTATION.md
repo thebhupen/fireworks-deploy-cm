@@ -45,21 +45,30 @@ model, and show what fine-tuning changes and what it does not yet.
 | Model (all on Fireworks) | Passed | 95% CI | $/run | $/solved |
 |---|---|---|---|---|
 | Kimi K3 (frontier) | 30/50 (60%) | 46-72% | 0.85 | 1.42 |
-| Lightning, untrained | 2/42 (5%), final pending | | 0.024 | ~0.50 |
-| Lightning, LoRA v1 (25 hardest training tasks) | 4/50 (8%) | 3-19% | 0.046 | 0.57 |
-| Lightning, LoRA v2 (all 55 training tasks) | pending (~1:30 PT) | | | |
+| Lightning, untrained | 2/50 (4%) | 1-14% | 0.02 | 0.60 |
+| Lightning, LoRA v1 (25 hardest training tasks) | 7/50 (14%) | 7-26% | 0.03 | 0.21 |
+| Lightning, LoRA v2 (all 55 training tasks) | 9/50 (18%) | 10-31% | 0.07 | 0.40 |
 
-- Tuned-model cost = deployment time x $13/h (B200): v1's 50 runs took 11 minutes, $2.28. A fuller deployment
-  costs less per run.
+Judge: Qwen3.8-Max with the two disclosed prompt edits (JUDGE_CHANGES.md), the same for every row.
+
+- Tuned-model cost = deployment time x $13/h (B200): v1's 50 runs took 7 minutes ($1.46), v2's 17 ($3.60). A fuller
+  deployment costs less per run.
 - Kimi and untrained Lightning are serverless per-token estimates from conversation length.
-- Training loss: v1 0.36 to 0.10 over 12 steps; v2 0.36 to 0.22 by step 11 of 21.
+- Training loss: v1 0.36 to 0.10 over 12 steps; v2 0.36 to 0.14 over 21 steps.
 
 Behaviour change worth a slide: **format errors** (replies the agent cannot execute because they lack a valid
 `Action:`) fell from 8-27 per run untrained to about 3 per run after v1. The tuned model stops tripping over the agent
 format and actually attempts the task; its remaining failures are wrong decisions (22 wrong or missing actions, 21
 right tool with wrong arguments, in v1).
 
-## Messages (pick according to v2)
+## Message (v2 is in: 4% untrained to 18% tuned, intervals do not overlap)
+
+"With 55 examples and one LoRA run on Fireworks, a 3B-active model went from 4% to 18% on phones it had never seen,
+about 4.5x, at about 12x lower cost per task than the frontier model. Data is the lever: 25 to 55 examples took it from
+14% to 18%. Next: a second teacher (Kimi K3, 60%) for more training data, then a learning-rate and epoch sweep on
+held-out validation phones."
+
+## Message options considered earlier
 
 - **If v2 clearly beats untrained** (non-overlapping intervals, or a big jump): "With 55 examples and one LoRA run on
   Fireworks, a 3B-active model went from X% to Y% on phones it had never seen, at 1/20th the cost per run of the
