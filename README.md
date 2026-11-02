@@ -30,8 +30,9 @@ phones. Cost per solved task is the tradeoff we measure.
 | Claude Sonnet 5.5 (frontier baseline) | 35/50 (70%) | 0.50 |
 | Nemotron 3 Ultra | 23/50 (46%) | 0.12 |
 | Nemotron 3.5 Super | 21/50 (42%) | 0.04 |
-| Nemotron 3.5 Lightning, untrained | 6/49 (12%) | 0.08 |
-| Nemotron 3.5 Lightning, fine-tuned on Fireworks | pending | |
+| Nemotron 3.5 Lightning, untrained (OpenRouter) | 6/49 (12%) | 0.08 |
+| Nemotron 3.5 Lightning, untrained (Fireworks serverless) | running | |
+| Nemotron 3.5 Lightning, fine-tuned on Fireworks (25 hardest training tasks) | training | |
 
 Costs are estimated from conversation length at list prices; pass rates are exact.
 
@@ -53,18 +54,35 @@ export FIREWORKS_AI_API_KEY=...              # for fireworks_ai: models
 python3 report.py runs/test/results.jsonl    # pass rate, steps, cost per run and per solved task
 ```
 
-`./run.sh train openrouter:nvidia/nemotron-3-ultra-550b-a55b` runs the teacher on the training phones;
-`python3 build_sft.py runs/train/results.jsonl sft/train.jsonl` turns its passing runs into a Fireworks chat dataset
-(one example per task, the shortest passing run).
+## Training data
+
+1. `./run.sh train openrouter:nvidia/nemotron-3-ultra-550b-a55b` runs the teacher on the 134 training tasks (we ran
+   it twice on the ones it failed). It solved 55.
+2. `python3 build_sft.py runs/train/results.jsonl sft/train.jsonl` turns the passing runs into chat examples: one
+   per task (the shortest passing run), the agent's whole conversation (system prompt with tools, the request, every
+   reasoning step, tool call and tool result).
+3. `python3 select_hard.py sft/train.jsonl sft/train25.jsonl --n 25` keeps the 25 hardest: most expected actions,
+   then most apps, then most facts to find, judged from the task definitions only (never from model results). They
+   need 3-5 actions across 2-3 apps and cover all 8 training phones.
 
 ## Fine-tune and deploy on Fireworks
 
+Training uses Fireworks' Training API cookbook ([fw-ai/cookbook](https://github.com/fw-ai/cookbook), `training/`):
+the dataset stays local, the recipe tokenizes it and trains a LoRA on a dedicated Fireworks trainer, then promotes
+the adapter as a model on the account.
+
 ```bash
-firectl dataset create rlu-train sft/train.jsonl
-firectl sftj create --base-model <NEMOTRON_LIGHTNING_BASE_ID> --dataset rlu-train \
-  --output-model nemotron-lightning-rlu --lora-rank 16 --epochs 3 --max-context-length 65536
-firectl deployment create "accounts/<ACCOUNT_ID>/models/nemotron-lightning-rlu" --deployment-shape default
-./run.sh test fireworks_ai:accounts/<ACCOUNT_ID>/models/nemotron-lightning-rlu
+git clone https://github.com/fw-ai/cookbook.git && (cd cookbook/training && uv venv --python 3.12 && uv pip install -e .)
+export FIREWORKS_API_KEY=...
+cookbook/training/.venv/bin/python train_fireworks.py --dataset sft/train25.jsonl --output-model nemotron-lightning-rlu-v1
+```
+
+Settings: base `accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b`, LoRA rank 16, 3 epochs, batch 8,
+learning rate 1e-4, 64k context. `python3 fireworks_api.py get models/nemotron-lightning-rlu-v1` shows the result.
+The untrained base is served serverless on Fireworks; the tuned LoRA needs an on-demand deployment, then:
+
+```bash
+./run.sh test fireworks_ai:accounts/<ACCOUNT_ID>/models/nemotron-lightning-rlu-v1
 ```
 
 ## What existed before the event
@@ -80,7 +98,10 @@ evaluation of the tuned model on Fireworks, and the results added to this README
 |---|---|
 | `run_models.py`, `run.sh` | run models on tasks, in parallel, resumable |
 | `report.py` | pass rate, steps and estimated cost per model |
-| `build_sft.py` | teacher runs to a Fireworks SFT dataset |
+| `build_sft.py` | teacher runs to a chat SFT dataset |
+| `select_hard.py` | keep the N hardest training examples, by task definition |
+| `train_fireworks.py` | LoRA SFT on Fireworks with the Training API cookbook |
+| `fireworks_api.py` | small Fireworks REST helper (account, models, jobs) |
 | `reference_environment/universes/apps/` | the simulated Indian apps (payments, shopping, travel, health, ...) |
 | `reference_environment/universes/assembly/` | builds a task's scenario and runs the agent and judge |
 | `are/` | ARE 1.2.0 by Meta, MIT licence (`ARE_LICENSE`) |
