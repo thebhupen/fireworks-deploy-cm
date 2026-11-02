@@ -22,6 +22,10 @@ PRICES = {  # (input, output) USD per million tokens
     "claude-sonnet-5-5": (2.00, 10.00),
     "anthropic/claude-sonnet-5.5": (2.00, 10.00),
     "google/gemini-4-argon": (2.00, 10.00),
+    # Fireworks serverless list prices, standard tier (2 Nov 2026)
+    "accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b": (0.05, 0.20),
+    "accounts/fireworks/models/kimi-k3": (3.00, 15.00),
+    "accounts/fireworks/models/qwen3p8-max": (2.00, 6.00),
 }
 CHARS_PER_TOKEN = 3
 

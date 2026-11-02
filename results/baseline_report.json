@@ -1,0 +1,32 @@
+[
+  {
+    "model": "accounts/fireworks/models/kimi-k3",
+    "variant": "owner",
+    "runs": 50,
+    "passed": 30,
+    "errors": 0,
+    "steps": 437,
+    "cost": 42.561879000000005,
+    "ci95": [
+      0.4618118910275937,
+      0.7239181021375425
+    ],
+    "cost_per_run": 0.85123758,
+    "cost_per_solved": 1.4187293
+  },
+  {
+    "model": "accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",
+    "variant": "owner",
+    "runs": 50,
+    "passed": 2,
+    "errors": 0,
+    "steps": 602,
+    "cost": 1.2055012499999997,
+    "ci95": [
+      0.011038652660826577,
+      0.13460337877954667
+    ],
+    "cost_per_run": 0.024110024999999993,
+    "cost_per_solved": 0.6027506249999999
+  }
+]
